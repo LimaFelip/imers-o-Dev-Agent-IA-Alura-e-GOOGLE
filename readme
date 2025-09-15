@@ -1,0 +1,1 @@
+pip install -q --upgrade langchain-google-genai google-generativeai
