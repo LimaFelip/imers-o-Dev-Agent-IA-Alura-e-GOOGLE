@@ -1,10 +1,11 @@
-Instalação
-pip install -q --upgrade langchain-google-genai google-generativeai
-pip install -q --upgrade langchain_community faiss-cpu langchain-text-splitters pymupdf
-pip install -q --upgrade langgraph
+# Instalação de Pacotes
+    pip install -U langchain
+    pip install -q --upgrade langchain-google-genai google-generativeai
+    pip install -q --upgrade langchain_community faiss-cpu langchain-text-splitters pymupdf
+    pip install -q --upgrade langgraph
 
 
-Aula 1
+<h1>Aula 1</h1>
 Configurar o modelo Gemini 2.5 Flash no LangChain.
 Escrever prompts de sistema claros para triagem de mensagens.
 Estruturar saídas em JSON com Pydantic para garantir previsibilidade.
@@ -17,7 +18,7 @@ Desenvolver um classificador funcional como base do agente.
 •	Google Colab: o que é, tutorial de como usar e criar códigos.
     https://www.alura.com.br/artigos/google-colab-o-que-e-e-como-usar
 
-Aula 2
+<h1>Aula 2</h1>
 Carregar e processar documentos PDF.
 Dividir textos longos em chunks para otimizar a busca de informações.
 Criar embeddings e armazenar em uma Vector Store com FAISS.
@@ -31,7 +32,7 @@ Formatar respostas com citações exatas das fontes consultadas.
     https://www.alura.com.br/artigos/llamaindex
 
 
-Aula 3
+<h1>Aula 3</h1>
 Definir um estado do agente para armazenar informações do fluxo.
 Transformar as principais funções (triagem, auto-resolver, pedir informação, abrir chamado) em nós de grafo.
 Implementar a lógica de roteamento condicional entre os nós.
