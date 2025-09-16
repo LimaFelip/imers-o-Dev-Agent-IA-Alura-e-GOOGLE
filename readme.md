@@ -44,12 +44,12 @@
 • Transformar as principais funções (triagem, auto-resolver, pedir informação, abrir chamado) em nós de grafo.    
 • Implementar a lógica de roteamento condicional entre os nós.     
 • Montar e compilar o grafo no LangGraph para execução do fluxo completo.    
-• Visualizar o fluxo em diagrama para entender as decisões do agente.       
+• Visualizar o fluxo em diagrama para entender as decisões do agente.   
+
+![Diagrama](https://github.com/LimaFelip/imers-o-Dev-Agent-IA-Alura-e-GOOGLE/blob/main/docs/diagrama_completo.jpg?raw=true)
 
 •	Agentes de IA com LangGraph     
     https://www.alura.com.br/conteudo/flash-skills-agentes-ia-langgraph    
-
-![Diagrama](https://github.com/LimaFelip/imers-o-Dev-Agent-IA-Alura-e-GOOGLE/blob/main/docs/diagrama_completo.jpg?raw=true)
 
 •	LangChain: criando chatbots inteligentes com RAG     
     https://www.alura.com.br/conteudo/langchain-criando-chatbots-inteligentes-rag    
