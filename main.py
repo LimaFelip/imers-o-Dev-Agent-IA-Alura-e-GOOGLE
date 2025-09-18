@@ -1,62 +1,26 @@
+import time
 from agent_state import AgentState
 from TRIAGEM_PROMPT import TRIAGEM_PROMPT
-from formatters import _clean_text, extrair_trecho, formatar_citacoes
+from formatters import formatar_citacoes
 from config_key import GOOGLE_API_KEY
-
-import re, pathlib
-import os
+from screening import triagem, llm_triagem
 
 import google.generativeai as genai
-from pydantic import BaseModel, Field
-from typing import Literal, List, Dict
+from typing import Dict
 from pathlib import Path
 
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langgraph.graph import StateGraph, START, END
 
-from pydantic import BaseModel, Field
-from typing import Literal, List, Dict
+
+from google.api_core.exceptions import ResourceExhausted, InvalidArgument 
 
 
-# Verificação para garantir que a variável não está vazia
-if not GOOGLE_API_KEY:
-    raise ValueError("A chave GOOGLE_API_KEY não foi encontrada no ambiente.")
-
-class TriagemOut(BaseModel):
-    decisao: Literal["AUTO_RESOLVER", "PEDIR_INFO", "ABRIR_CHAMADO"]
-    urgencia: Literal["BAIXA", "MEDIA", "ALTA"]
-    campos_faltantes: List[str] = Field(default_factory=list)
-
-
-llm_triagem = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
-    temperature=0.8,
-    api_key=GOOGLE_API_KEY)
-    
-triagem_chain = llm_triagem.with_structured_output(TriagemOut)
-
-def triagem(mensagem: str) -> Dict:
-    saida: TriagemOut = triagem_chain.invoke([
-        SystemMessage(content=TRIAGEM_PROMPT),
-        HumanMessage(content=mensagem)
-    ])
-
-    return saida.model_dump()
-
-# para testar
-# testes = ["Posso reembosar a internet?",
-#                 "Quero mais 5 dias de trabalho remoto. Como faço?",
-#                 "Quem descobriu o Brasil?" ]
-# for msg_teste in testes:
-#    print(f"Pergunta: {msg_teste}\n -> Resposta: {triagem(msg_teste)}\n")
-#
-#----------------------------FIM da AULA 2 -----------------
 
 # langchain_community - para fazer as conexções
 # faiss-cpu para criar a similaridade de texto
@@ -72,6 +36,7 @@ for n in Path("./docs/").glob("*.pdf"):
   except Exception as e:
     print(f"Erro ao carregar: {n.name}: {e}")
 # --------------------------------------------------------
+
 splitter = RecursiveCharacterTextSplitter(chunk_size=300, chunk_overlap=30)
 chunks = splitter.split_documents(docs)
 
@@ -215,19 +180,55 @@ workflow.add_edge("abrir_chamado", END)
 
 grafo = workflow.compile()
 
-testes = ["Posso reembolsar a internet?"]
+testes = input()
+
 
 for msg_test in testes:
-    resposta_final = grafo.invoke({"pergunta": msg_test})
 
-    triag = resposta_final.get("triagem", {})
-    print(f"PERGUNTA: {msg_test}")
-    print(f"DECISÃO: {triag.get('decisao')} | URGÊNCIA: {triag.get('urgencia')} | AÇÃO FINAL: {resposta_final.get('acao_final')}")
-    print(f"RESPOSTA: {resposta_final.get('resposta')}")
-    if resposta_final.get("citacoes"):
-        print("CITAÇÕES:")
-        for citacao in resposta_final.get("citacoes"):
-            print(f" - Documento: {citacao['documento']}, Página: {citacao['pagina']}")
-            print(f"   Trecho: {citacao['trecho']}")
+    try: 
+        resposta_final = grafo.invoke({"pergunta": msg_test})
+
+        triag = resposta_final.get("triagem", {})
+        print(f"PERGUNTA: {msg_test}")
+        print(f"DECISÃO: {triag.get('decisao')} | URGÊNCIA: {triag.get('urgencia')} | AÇÃO FINAL: {resposta_final.get('acao_final')}")
+        print(f"RESPOSTA: {resposta_final.get('resposta')}")
+
+        if resposta_final.get("citacoes"):
+            print("CITAÇÕES:")
+            for citacao in resposta_final.get("citacoes"):
+                print(f" - Documento: {citacao['documento']}, Página: {citacao['pagina']}")
+                print(f"   Trecho: {citacao['trecho']}")
+    
+
+        # NOVO BLOCO PARA CAPTURAR O ERRO DE CHAVE INVÁLIDA/EXPIRADA
+    except InvalidArgument as e:
+        # Verificamos a mensagem de erro para ter certeza que é sobre a API Key
+        if "API key expired" in str(e) or "API_KEY_INVALID" in str(e):
+            print("\n❌ ERRO: Sua chave de API do Google expirou ou é inválida.")
+            print("Por favor, gere uma nova chave e atualize sua variável de ambiente.")
+            resposta_final = {"erro": "Chave de API expirada ou inválida (400)"}
+            break # Interrompe o loop se a chave é inválida
+        else:
+            # Se for outro tipo de InvalidArgument, tratamos como um erro inesperado
+            print(f"\n❌ ERRO: Ocorreu um problema com os dados enviados para a API (Bad Request).")
+            print(f"Detalhe do erro: {e}")
+            resposta_final = {"erro": "Ocorreu um erro de 'Bad Request' (400) na execução."}
+            
+
+    except ResourceExhausted as e:
+        # BLOCO QUE VOCÊ JÁ TINHA: Captura o erro específico de limite de uso (429)
+        print("\n❌ ERRO: Limite de uso da API do Google foi excedido.")
+        print("Isso acontece quando muitas chamadas são feitas em um curto período ou o limite diário foi atingido.")
+        print("Por favor, aguarde e tente novamente mais tarde.")
+        resposta_final = {"erro": "Limite de cota da API atingido (429)"}
+        time.sleep(60) # Pausa por 1 minuto e tenta continuar
+        continue # Pula para a próxima pergunta
+
+    except Exception as e:
+        # BLOCO DE SEGURANÇA: Captura qualquer outro erro inesperado
+        print(f"\n❌ ERRO: Ocorreu um problema inesperado durante a execução do agente.")
+        print(f"Detalhe do erro: {e}")
+        resposta_final = {"erro": "Ocorreu um erro genérico na execução."}
+        continue # Pula para a próxima pergunta
 
     print("------------------------------------")
