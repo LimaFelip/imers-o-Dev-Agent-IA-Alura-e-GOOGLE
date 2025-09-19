@@ -91,6 +91,8 @@ Foi implementado arquitetura de pastas e codigo com base nos principios de "Clea
 
 # Tratamento de ERROS
 Foi acrecentado tratamento erros  usando o pacote from google.api_core.exceptions import ResourceExhausted, InvalidArgument 
+
+Exemplo:
         
         # NOVO BLOCO PARA CAPTURAR O ERRO DE CHAVE INVÁLIDA/EXPIRADA
     except InvalidArgument as e:
