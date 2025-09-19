@@ -1,7 +1,6 @@
 # Formatadores
 import re, pathlib
-from pydantic import BaseModel, Field
-from typing import Literal, List, Dict
+from typing import  List, Dict
 
 def _clean_text(s: str) -> str:
     return re.sub(r"\s+", " ", s or "").strip()

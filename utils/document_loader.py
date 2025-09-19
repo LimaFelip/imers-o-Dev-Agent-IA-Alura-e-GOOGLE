@@ -1,5 +1,5 @@
 from config_key import GOOGLE_API_KEY
-from screening import llm_triagem
+from agent.screening import llm_triagem
 
 from pathlib import Path
 

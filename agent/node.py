@@ -1,7 +1,7 @@
 from agent.state import AgentState
 from utils.document_loader import retriever,document_chain
-from screening import triagem 
-from formatters import formatar_citacoes
+from agent.screening import triagem 
+from utils.formatters import formatar_citacoes
 from typing import Dict
 
 def node_triagem(state: AgentState ) -> AgentState:
