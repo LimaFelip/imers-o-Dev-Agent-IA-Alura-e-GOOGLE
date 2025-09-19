@@ -1,5 +1,6 @@
 from agent.state import AgentState
-from screening import triagem
+from utils.document_loader import retriever,document_chain
+from screening import triagem 
 from formatters import formatar_citacoes
 from typing import Dict
 
