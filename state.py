@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, List, Dict
+from typing import TypedDict, Optional, List
 
 class AgentState(TypedDict, total =False):
   pergunta: str
