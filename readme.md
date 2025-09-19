@@ -1,4 +1,4 @@
-<h1>Imersão Dev Agentes de IA - Alura e Google</h1>
+<h1>Imersão Dev Agentes de IA - Alura e Google de 08 á 15 de setembro de 2025  </h1>
 
 ![Alura](https://github.com/LimaFelip/imers-o-Dev-Agent-IA-Alura-e-GOOGLE/blob/main/docs/alura%201.jpg?raw=true)
 
@@ -57,3 +57,68 @@
 •	Como agentes potencializam a performance das LLMs    
     https://www.alura.com.br/artigos/como-agentes-podem-ajudar-llms
 
+
+# Além da imersão da Alura
+
+# Clean CODE     
+
+Foi implementado arquitetura de pastas e codigo com base nos principios de "Clean Code"     
+    Princípio da Responsabilidade Única (Single Responsibility Principle)     
+    
+        AgentAPI/     
+        ├── agent/    
+        │   ├── __init__.py             # Faz 'agent' ser um pacote Python    
+        │   ├── graph.py                # Lógica para construir o grafo    
+        │   ├── nodes.py                # Todas as funções dos nós    
+        │   ├── prompts.py              # Todos os textos de prompt    
+        │   ├── state.py                # Definição do AgentState e outros modelos   
+        |   └── screening.py            # Módulo responsável pela triagem inicial de mensagens de usuários   
+        ├── docs/                       # Armazena os arquivos .pdfs que foram utilizados    
+        |   ├── Política de Reembolsos (Viagens e Despesas).pdf      
+        |   ├── Política de Uso de E-mail e Segurança da Informação.pdf    
+        |   ├── Políticas de Home Office.pdf   
+        ├── utils/     
+        │   ├── __init__.py    
+        │   └── document_loader.py   # Função para carregar e dividir os PDFs   
+        ├── .env                     # Arquivo para guardar a GOOGLE_API_KEY   
+        ├── .gitignore   
+        ├── config_key.py                   # Configurações da api principal   
+        ├── main.py                     # Nosso novo e limpo arquivo principal   
+        └── venv/     
+
+*obs.  Com base na segurança alguns arquivos foram ocultos.
+
+
+# Tratamento de ERROS
+    Foi acrecentado tratamento erros  usando o pacote from google.api_core.exceptions import ResourceExhausted, InvalidArgument 
+        
+        # NOVO BLOCO PARA CAPTURAR O ERRO DE CHAVE INVÁLIDA/EXPIRADA
+    except InvalidArgument as e:
+        # Verificamos a mensagem de erro para ter certeza que é sobre a API Key
+        if "API key expired" in str(e) or "API_KEY_INVALID" in str(e):
+            print("\n❌ ERRO: Sua chave de API do Google expirou ou é inválida.")
+            print("Por favor, gere uma nova chave e atualize sua variável de ambiente.")
+            resposta_final = {"erro": "Chave de API expirada ou inválida (400)"}
+            break # Interrompe o loop se a chave é inválida
+        else:
+            # Se for outro tipo de InvalidArgument, tratamos como um erro inesperado
+            print(f"\n❌ ERRO: Ocorreu um problema com os dados enviados para a API (Bad Request).")
+            print(f"Detalhe do erro: {e}")
+            resposta_final = {"erro": "Ocorreu um erro de 'Bad Request' (400) na execução."}
+            
+
+    except ResourceExhausted as e:
+        # BLOCO QUE VOCÊ JÁ TINHA: Captura o erro específico de limite de uso (429)
+        print("\n❌ ERRO: Limite de uso da API do Google foi excedido.")
+        print("Isso acontece quando muitas chamadas são feitas em um curto período ou o limite diário foi atingido.")
+        print("Por favor, aguarde e tente novamente mais tarde.")
+        resposta_final = {"erro": "Limite de cota da API atingido (429)"}
+        time.sleep(60) # Pausa por 1 minuto e tenta continuar
+        continue # Pula para a próxima pergunta
+
+    except Exception as e:
+        # BLOCO DE SEGURANÇA: Captura qualquer outro erro inesperado
+        print(f"\n❌ ERRO: Ocorreu um problema inesperado durante a execução do agente.")
+        print(f"Detalhe do erro: {e}")
+        resposta_final = {"erro": "Ocorreu um erro genérico na execução."}
+        continue # Pula para a próxima pergunta
