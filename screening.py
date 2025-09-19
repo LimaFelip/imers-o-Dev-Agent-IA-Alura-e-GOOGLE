@@ -7,7 +7,7 @@ a urgência e quais informações podem estar faltando.
 """
 
 from config_key import GOOGLE_API_KEY
-from prompts import TRIAGEM_PROMPT
+from agent.prompts import TRIAGEM_PROMPT
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage

@@ -1,6 +1,6 @@
 from config_key import GOOGLE_API_KEY
 from screening import  llm_triagem
-from graph import grafo
+from agent.graph import grafo
 
 import time
 

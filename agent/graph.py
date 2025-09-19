@@ -1,5 +1,5 @@
-from state import AgentState
-from node import node_triagem, node_auto_resolver,node_pedir_info,node_abrir_chamado, decidir_pos_auto_resolver, decidir_pos_triagem_principal
+from agent.state import AgentState
+from agent.node import node_triagem, node_auto_resolver,node_pedir_info,node_abrir_chamado, decidir_pos_auto_resolver, decidir_pos_triagem_principal
 from langgraph.graph import StateGraph, START, END
 
 workflow = StateGraph(AgentState)

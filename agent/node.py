@@ -1,4 +1,4 @@
-from state import AgentState
+from agent.state import AgentState
 from screening import triagem
 from formatters import formatar_citacoes
 from typing import Dict
