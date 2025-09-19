@@ -2,6 +2,7 @@ from agent.state import AgentState
 from agent.node import node_triagem, node_auto_resolver,node_pedir_info,node_abrir_chamado, decidir_pos_auto_resolver, decidir_pos_triagem_principal
 from langgraph.graph import StateGraph, START, END
 
+# Cria e copila grafo do agente
 workflow = StateGraph(AgentState)
 
 workflow.add_node("triagem", node_triagem)  
